@@ -1,3 +1,9 @@
+# Julia 图形工具！
+
+## 这里我们主要用到几个包
+- Plots用于数学绘制函数
+
+
 ## Plots
 
 - GR后端，JuliaPro Juno和Anaconda3 Jupyter中都成功调用。但Jupyter中用中文标题会有乱码。
