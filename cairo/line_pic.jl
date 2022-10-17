@@ -1,11 +1,11 @@
 
 using FileIO,Plots,Luxor
-data = float.(Gray.(load("heben.png")));
+data = float.(Gray.(load("yangmi.png")));
 data = data.^2.5;
 m,n = size(data)
 
-cx,cy=240,340
-cr=130;
+cx,cy=192,180
+cr=155;
 
 
 # function test_circle_mask(img)
@@ -28,8 +28,8 @@ end
 function distance_pix(a,b)
     if (a>b)
         return (a-b)/(b+0.1);
-    elseif a<b-0.1
-        return (b-a-0.1)^2*3.0;
+    elseif a<b
+        return (b-a)^2*3.9;
     else
         return 0
     end
@@ -42,7 +42,7 @@ end
 mask_pic = [(i-cx)^2+(j-cy)^2<cr^2 for i in 1:m, j in 1:n];
 data_mask = data[mask_pic];
 
-const N = 200;
+const N = 150;
 const Pin_list=[
 Point(cos(s/N*2*pi)*cr+cx, sin(s/N*2*pi)*cr+cy) for  s in 1:N];
 
@@ -53,25 +53,26 @@ function drawline_on_matrix(img::Matrix{RGB24}, P1::Point,P2::Point)
     new_img= copy(img);
     Drawing(new_img)
     setline(1) # line_width= 1
-    setcolor(0.2,0.2,0.2,0.55);
+    setcolor(0.05,0.05,0.05,0.60);
     line(P1,P2,action= :fillstroke);
     finish()
     return new_img;
 end
 
-pointer =1;
+
 img = RGB24.(ones(m,n));
 dist_list= zeros(N);
-it_max= 1000
+it_max= 500;
+pointer::Int=10;
 pointer_record=[pointer]
 num_record=zeros(Int,N);
 num_record[pointer]=1;
 weight=num_record*0.0 .+1.0;
-
 for it in 2:it_max
+    global pointer,img;
     for i in eachindex(Pin_list) 
-        if i == pointer
-        dist_list[i]=Inf
+        if i==pointer
+            dist_list[i]=Inf
         else
             img1=drawline_on_matrix(img,Pin_list[pointer],Pin_list[i]);
             floag_img1=float.(Gray.(img1[mask_pic]));
@@ -79,7 +80,7 @@ for it in 2:it_max
         end
     end
     #weight=num_record*0.03.+1.0;
-    new_pointer= argmin(dist_list.*weight)
+    new_pointer= argmin(dist_list)
     img=drawline_on_matrix(img,Pin_list[pointer],Pin_list[new_pointer]);
     pointer=new_pointer 
     num_record[pointer]+=1;
@@ -89,7 +90,7 @@ for it in 2:it_max
         println("$per %");
         p1=plot(Gray.(img))
         #plot(p1,p2)
-        println("----------");
+        #println("----------");
     end
 end
 
